@@ -15,6 +15,7 @@ import (
 
 // default config
 var listenAddr = "127.0.0.1:8080"
+var startupWait time.Duration = 0
 var responseBody []byte = []byte("I'm a testserver")
 var responseSleep time.Duration = 50 * time.Millisecond
 var trapSignals []os.Signal = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
@@ -24,6 +25,9 @@ func init() {
 	// override default config
 	if v := os.Getenv("LISTEN_ADDR"); v != "" {
 		listenAddr = v
+	}
+	if v, err := time.ParseDuration(os.Getenv("STARTUP_WAIT")); err == nil {
+		startupWait = v
 	}
 	if v := os.Getenv("RESPONSE_BODY"); v != "" {
 		responseBody = []byte(v)
@@ -61,6 +65,7 @@ func main() {
 	fmt.Println("############# Configuration #############")
 	print := func(key string, val interface{}) { fmt.Printf("%-19s%v\n", key, val) }
 	print("LISTEN_ADDR", listenAddr)
+	print("STARTUP_WAIT", startupWait)
 	print("RESPONSE_SLEEP", responseSleep)
 	print("TRAP_SIGNALS", trapSignals)
 	print("GRACE_PERIOD", gracePeriod)
@@ -100,6 +105,10 @@ func main() {
 	}()
 
 	// start
+	if startupWait > 0 {
+		log.Println("waiting for startup:", startupWait)
+		time.Sleep(startupWait)
+	}
 	log.Println("start servering")
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("HTTP server ListenAndServe: %v", err)
