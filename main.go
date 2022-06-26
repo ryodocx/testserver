@@ -23,18 +23,36 @@ var gracePeriod time.Duration = 1 * time.Second
 
 func init() {
 	// override default config
+
+	// LISTEN_ADDR
 	if v := os.Getenv("LISTEN_ADDR"); v != "" {
 		listenAddr = v
 	}
-	if v, err := time.ParseDuration(os.Getenv("STARTUP_WAIT")); err == nil {
-		startupWait = v
+
+	// STARTUP_WAIT
+	if e := os.Getenv("STARTUP_WAIT"); e != "" {
+		if v, err := time.ParseDuration(e); err != nil {
+			log.Fatalln("invalid 'STARTUP_WAIT':", err)
+		} else {
+			startupWait = v
+		}
 	}
+
+	// RESPONSE_BODY
 	if v := os.Getenv("RESPONSE_BODY"); v != "" {
 		responseBody = []byte(v)
 	}
-	if v, err := time.ParseDuration(os.Getenv("RESPONSE_SLEEP")); err == nil {
-		responseSleep = v
+
+	// RESPONSE_SLEEP
+	if e := os.Getenv("RESPONSE_SLEEP"); e != "" {
+		if v, err := time.ParseDuration(e); err != nil {
+			log.Fatalln("invalid 'RESPONSE_SLEEP':", err)
+		} else {
+			responseSleep = v
+		}
 	}
+
+	// TRAP_SIGNALS
 	if v := os.Getenv("TRAP_SIGNALS"); v != "" {
 		trapSignals = []os.Signal{}
 		if v == "0" {
@@ -50,8 +68,14 @@ func init() {
 			}
 		}
 	}
-	if v, err := time.ParseDuration(os.Getenv("GRACE_PERIOD")); err == nil {
-		gracePeriod = v
+
+	// GRACE_PERIOD
+	if e := os.Getenv("GRACE_PERIOD"); e != "" {
+		if v, err := time.ParseDuration(e); err != nil {
+			log.Fatalln("invalid 'GRACE_PERIOD':", err)
+		} else {
+			gracePeriod = v
+		}
 	}
 }
 
