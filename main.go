@@ -19,7 +19,8 @@ var startupWait time.Duration = 0
 var responseBody []byte = []byte("I'm a testserver")
 var responseSleep time.Duration = 50 * time.Millisecond
 var trapSignals []os.Signal = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
-var gracePeriod time.Duration = 1 * time.Second
+var gracePeriodBeforeShutdown time.Duration = 3 * time.Second
+var gracePeriodDuringShutdown time.Duration = 1 * time.Second
 
 func init() {
 	// override default config
@@ -69,12 +70,21 @@ func init() {
 		}
 	}
 
-	// GRACE_PERIOD
-	if e := os.Getenv("GRACE_PERIOD"); e != "" {
+	// GRACE_PERIOD_BEFORE_SHUTDOWN
+	if e := os.Getenv("GRACE_PERIOD_BEFORE_SHUTDOWN"); e != "" {
 		if v, err := time.ParseDuration(e); err != nil {
-			log.Fatalln("invalid 'GRACE_PERIOD':", err)
+			log.Fatalln("invalid 'GRACE_PERIOD_BEFORE_SHUTDOWN':", err)
 		} else {
-			gracePeriod = v
+			gracePeriodBeforeShutdown = v
+		}
+	}
+
+	// GRACE_PERIOD_DURING_SHUTDOWN
+	if e := os.Getenv("GRACE_PERIOD_DURING_SHUTDOWN"); e != "" {
+		if v, err := time.ParseDuration(e); err != nil {
+			log.Fatalln("invalid 'GRACE_PERIOD_DURING_SHUTDOWN':", err)
+		} else {
+			gracePeriodDuringShutdown = v
 		}
 	}
 }
@@ -86,14 +96,15 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	fmt.Println("pid =", os.Getpid())
-	fmt.Println("############# Configuration #############")
-	print := func(key string, val interface{}) { fmt.Printf("%-19s%v\n", key, val) }
+	fmt.Println("################## Configuration ##################")
+	print := func(key string, val interface{}) { fmt.Printf("%-29s%v\n", key, val) }
 	print("LISTEN_ADDR", listenAddr)
 	print("STARTUP_WAIT", startupWait)
 	print("RESPONSE_SLEEP", responseSleep)
 	print("TRAP_SIGNALS", trapSignals)
-	print("GRACE_PERIOD", gracePeriod)
-	fmt.Println("#########################################")
+	print("GRACE_PERIOD_BEFORE_SHUTDOWN", gracePeriodBeforeShutdown)
+	print("GRACE_PERIOD_DURING_SHUTDOWN", gracePeriodDuringShutdown)
+	fmt.Println("###################################################")
 
 	var srv http.Server
 	srv.Addr = listenAddr
@@ -119,10 +130,11 @@ func main() {
 
 		// graceful shutdown
 	shutdown:
-		log.Println("waiting for shutdown:", gracePeriod)
-		ctx, cancel := context.WithTimeout(context.Background(), gracePeriod)
+		log.Println("waiting for shutdown:", gracePeriodBeforeShutdown)
+		time.Sleep(gracePeriodBeforeShutdown)
+		log.Printf("shutting down... (grace period = %v)\n", gracePeriodDuringShutdown)
+		ctx, cancel := context.WithTimeout(context.Background(), gracePeriodDuringShutdown)
 		defer cancel()
-		log.Println("shutting down...")
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
 		}
