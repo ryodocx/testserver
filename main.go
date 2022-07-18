@@ -20,7 +20,7 @@ var responseBody []byte = []byte("I'm a testserver")
 var responseSleep time.Duration = 50 * time.Millisecond
 var trapSignals []os.Signal = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 var gracePeriodBeforeShutdown time.Duration = 3 * time.Second
-var gracePeriodDuringShutdown time.Duration = 1 * time.Second
+var gracePeriodDuringShutdown time.Duration = 0
 
 func init() {
 	// override default config
@@ -132,9 +132,16 @@ func main() {
 	shutdown:
 		log.Println("waiting for shutdown:", gracePeriodBeforeShutdown)
 		time.Sleep(gracePeriodBeforeShutdown)
-		log.Printf("shutting down... (grace period = %v)\n", gracePeriodDuringShutdown)
-		ctx, cancel := context.WithTimeout(context.Background(), gracePeriodDuringShutdown)
-		defer cancel()
+
+		ctx := context.Background()
+		if gracePeriodDuringShutdown == 0 {
+			log.Println("shutting down... (grace period = unlimited)")
+		} else {
+			log.Printf("shutting down... (grace period = %v)\n", gracePeriodDuringShutdown)
+			c, cancel := context.WithTimeout(context.Background(), gracePeriodDuringShutdown)
+			defer cancel()
+			ctx = c
+		}
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
 		}
