@@ -12,10 +12,13 @@ jobs:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
-      - uses: docker/metadata-action@v3
+      - uses: docker/metadata-action@v4
         id: meta
         with:
           images: ghcr.io/ryodocx/testserver
+          flavor: |
+            latest=auto
+            prefix=v
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}

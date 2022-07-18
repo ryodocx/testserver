@@ -8,7 +8,7 @@ HTTP Server for graceful-shutdown testing
 go install github.com/ryodocx/testserver@latest
 
 # docker
-docker run --rm -it -p 8080:8080 ghcr.io/ryodocx/testserver
+docker run --rm -it -p 8080:8080 ghcr.io/ryodocx/testserver:v1
 ```
 
 ## Environment variables

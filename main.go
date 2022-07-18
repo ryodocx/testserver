@@ -120,9 +120,10 @@ func main() {
 		// graceful shutdown
 	shutdown:
 		log.Println("waiting for shutdown:", gracePeriod)
-		time.Sleep(gracePeriod)
+		ctx, cancel := context.WithTimeout(context.Background(), gracePeriod)
+		defer cancel()
 		log.Println("shutting down...")
-		if err := srv.Shutdown(context.Background()); err != nil {
+		if err := srv.Shutdown(ctx); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
 		}
 		close(idleConnsClosed)

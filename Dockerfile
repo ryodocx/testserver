@@ -1,9 +1,10 @@
-FROM golang:1.18.3-alpine
-COPY *.go .
+FROM golang:1.18.4-alpine
 ENV CGO_ENABLED=0
-RUN go build -o server *.go
+WORKDIR /
+COPY . .
+RUN go build -o /testserver *.go
 
 FROM alpine:3.16.0
 ENV LISTEN_ADDR=0.0.0.0:8080
-COPY --from=0 /go/server .
-CMD [ "/server" ]
+COPY --from=0 /testserver .
+ENTRYPOINT [ "/testserver" ]
