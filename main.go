@@ -132,9 +132,16 @@ func main() {
 	shutdown:
 		log.Println("waiting for shutdown:", gracePeriodBeforeShutdown)
 		time.Sleep(gracePeriodBeforeShutdown)
-		log.Printf("shutting down... (grace period = %v)\n", gracePeriodDuringShutdown)
-		ctx, cancel := context.WithTimeout(context.Background(), gracePeriodDuringShutdown)
-		defer cancel()
+
+		ctx := context.Background()
+		if gracePeriodDuringShutdown == 0 {
+			log.Println("shutting down... (grace period = unlimited)")
+		} else {
+			log.Printf("shutting down... (grace period = %v)\n", gracePeriodDuringShutdown)
+			c, cancel := context.WithTimeout(context.Background(), gracePeriodDuringShutdown)
+			defer cancel()
+			ctx = c
+		}
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
 		}
