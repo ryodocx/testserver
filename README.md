@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ryodocx/testserver)](https://goreportcard.com/report/github.com/ryodocx/testserver)
 
-HTTP Server for graceful-shutdown testing
+Simple HTTP Server for rolling-update testing
 
 ## Usage
 
@@ -13,7 +13,7 @@ HTTP Server for graceful-shutdown testing
 go install github.com/ryodocx/testserver@latest
 
 # docker
-docker run --rm -it -p 8080:8080 ghcr.io/ryodocx/testserver:v1
+docker run --rm -it -p 8080:8080 ghcr.io/ryodocx/testserver
 ```
 
 ## Environment variables
