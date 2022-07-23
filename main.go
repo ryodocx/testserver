@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"syscall"
@@ -15,9 +16,7 @@ import (
 
 // build info
 var (
-	version  string = "unknown"
-	revision string = "unknown"
-	changed  string = "unknown"
+	version string
 )
 
 // default config
@@ -102,15 +101,20 @@ func handler(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	if len(changed) > 0 {
-		version = fmt.Sprintf("%s*", version)
-	}
 	print := func(key string, val interface{}) { fmt.Printf("%-29s%v\n", key, val) }
-	fmt.Println("https://github.com/ryodocx/testserver")
+	i, _ := debug.ReadBuildInfo()
+	if version == "" {
+		if i.Main.Version != "(devel)" {
+			version = i.Main.Version
+		} else {
+			version = "unknown"
+		}
+	}
 	fmt.Println("###################### Info #######################")
+	fmt.Println(i.Path)
 	print("version", version)
-	print("revision", revision[:8])
-	print("pid", os.Getpid())
+	print("GoVersion", i.GoVersion)
+	print("PID", os.Getpid())
 	fmt.Println("################## Configuration ##################")
 	print("LISTEN_ADDR", listenAddr)
 	print("STARTUP_WAIT", startupWait)
