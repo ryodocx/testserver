@@ -112,7 +112,7 @@ func main() {
 	}
 	fmt.Println("###################### Info #######################")
 	fmt.Println(i.Path)
-	print("version", version)
+	print("Version", version)
 	print("GoVersion", i.GoVersion)
 	print("PID", os.Getpid())
 	fmt.Println("################## Configuration ##################")
