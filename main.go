@@ -103,7 +103,7 @@ func init() {
 
 func handler(w http.ResponseWriter, req *http.Request) {
 	if accessLog {
-		log.Printf("%s %s %s %s", req.RemoteAddr, (req.Header.Get("user-agent")), req.Method, req.RequestURI)
+		log.Printf("%s %s %s %s", req.RemoteAddr, string(req.Header.Get("user-agent")), req.Method, req.RequestURI)
 	}
 	time.Sleep(responseSleep)
 	_, _ = w.Write(responseBody)
