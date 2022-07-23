@@ -91,7 +91,7 @@ func init() {
 
 func handler(w http.ResponseWriter, req *http.Request) {
 	time.Sleep(responseSleep)
-	w.Write(responseBody)
+	_, _ = w.Write(responseBody)
 }
 
 func main() {
