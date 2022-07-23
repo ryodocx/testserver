@@ -27,6 +27,7 @@ var responseSleep time.Duration = 50 * time.Millisecond
 var trapSignals []os.Signal = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 var gracePeriodBeforeShutdown time.Duration = 1 * time.Second
 var gracePeriodDuringShutdown time.Duration = 0
+var accessLog bool = false
 
 func init() {
 	// override default config
@@ -93,10 +94,17 @@ func init() {
 			gracePeriodDuringShutdown = v
 		}
 	}
+
+	// ACCESS_LOG
+	if e := os.Getenv("ACCESS_LOG"); e == "true" {
+		accessLog = true
+	}
 }
 
 func handler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("%s %s %s", req.RemoteAddr, req.Header.Get("user-agent"), req.RequestURI)
+	if accessLog {
+		log.Printf("%s %s %s %s", req.RemoteAddr, req.Header.Get("user-agent"), req.Method, req.RequestURI)
+	}
 	time.Sleep(responseSleep)
 	_, _ = w.Write(responseBody)
 }
