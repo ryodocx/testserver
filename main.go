@@ -118,11 +118,11 @@ func main() {
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan)
 			signal.Ignore(syscall.SIGURG) // https://golang.hateblo.jp/entry/golang-signal-urgent-io-condition
-			recievedSignal := <-sigChan
-			log.Println("signal recieved:", fmt.Sprintf("%d(%s)", recievedSignal, recievedSignal.String()))
+			receivedSignal := <-sigChan
+			log.Println("signal received:", fmt.Sprintf("%d(%s)", receivedSignal, receivedSignal.String()))
 
 			for _, s := range trapSignals {
-				if recievedSignal == s {
+				if receivedSignal == s {
 					goto shutdown
 				}
 			}
@@ -153,7 +153,7 @@ func main() {
 		log.Println("waiting for startup:", startupWait)
 		time.Sleep(startupWait)
 	}
-	log.Println("start servering")
+	log.Println("server start")
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("HTTP server ListenAndServe: %v", err)
 	}
