@@ -1,5 +1,9 @@
 # testserver
 
+[![lint](https://github.com/ryodocx/testserver/actions/workflows/golangci-lint.yaml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/golangci-lint.yaml)
+[![CodeQL](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ryodocx/testserver)](https://goreportcard.com/report/github.com/ryodocx/testserver)
+
 HTTP Server for graceful-shutdown testing
 
 ## Usage
