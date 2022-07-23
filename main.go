@@ -26,7 +26,7 @@ var startupWait time.Duration = 0
 var responseBody []byte = []byte("I'm a testserver")
 var responseSleep time.Duration = 50 * time.Millisecond
 var trapSignals []os.Signal = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
-var gracePeriodBeforeShutdown time.Duration = 3 * time.Second
+var gracePeriodBeforeShutdown time.Duration = 1 * time.Second
 var gracePeriodDuringShutdown time.Duration = 0
 
 func init() {
