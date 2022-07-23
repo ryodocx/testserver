@@ -13,6 +13,13 @@ import (
 	"time"
 )
 
+// build info
+var (
+	version  string = "unknown"
+	revision string = "unknown"
+	changed  string = "unknown"
+)
+
 // default config
 var listenAddr = "127.0.0.1:8080"
 var startupWait time.Duration = 0
@@ -95,9 +102,16 @@ func handler(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	fmt.Println("pid =", os.Getpid())
-	fmt.Println("################## Configuration ##################")
+	if len(changed) > 0 {
+		version = fmt.Sprintf("%s*", version)
+	}
 	print := func(key string, val interface{}) { fmt.Printf("%-29s%v\n", key, val) }
+	fmt.Println("https://github.com/ryodocx/testserver")
+	fmt.Println("###################### Info #######################")
+	print("version", version)
+	print("revision", revision[:8])
+	print("pid", os.Getpid())
+	fmt.Println("################## Configuration ##################")
 	print("LISTEN_ADDR", listenAddr)
 	print("STARTUP_WAIT", startupWait)
 	print("RESPONSE_SLEEP", responseSleep)
