@@ -7,10 +7,16 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
+)
+
+// build info
+var (
+	version string
 )
 
 // default config
@@ -19,8 +25,9 @@ var startupWait time.Duration = 0
 var responseBody []byte = []byte("I'm a testserver")
 var responseSleep time.Duration = 50 * time.Millisecond
 var trapSignals []os.Signal = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
-var gracePeriodBeforeShutdown time.Duration = 3 * time.Second
+var gracePeriodBeforeShutdown time.Duration = 1 * time.Second
 var gracePeriodDuringShutdown time.Duration = 0
+var accessLog bool = false
 
 func init() {
 	// override default config
@@ -87,17 +94,37 @@ func init() {
 			gracePeriodDuringShutdown = v
 		}
 	}
+
+	// ACCESS_LOG
+	if e := os.Getenv("ACCESS_LOG"); e == "true" {
+		accessLog = true
+	}
 }
 
 func handler(w http.ResponseWriter, req *http.Request) {
+	if accessLog {
+		log.Printf("%s %s %s", req.RemoteAddr, req.Method, req.RequestURI)
+	}
 	time.Sleep(responseSleep)
-	w.Write(responseBody)
+	_, _ = w.Write(responseBody)
 }
 
 func main() {
-	fmt.Println("pid =", os.Getpid())
-	fmt.Println("################## Configuration ##################")
 	print := func(key string, val interface{}) { fmt.Printf("%-29s%v\n", key, val) }
+	i, _ := debug.ReadBuildInfo()
+	if version == "" {
+		if i.Main.Version != "(devel)" {
+			version = i.Main.Version
+		} else {
+			version = "unknown"
+		}
+	}
+	fmt.Println("###################### Info #######################")
+	fmt.Println(i.Path)
+	print("Version", version)
+	print("GoVersion", i.GoVersion)
+	print("PID", os.Getpid())
+	fmt.Println("################## Configuration ##################")
 	print("LISTEN_ADDR", listenAddr)
 	print("STARTUP_WAIT", startupWait)
 	print("RESPONSE_SLEEP", responseSleep)
@@ -118,11 +145,11 @@ func main() {
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan)
 			signal.Ignore(syscall.SIGURG) // https://golang.hateblo.jp/entry/golang-signal-urgent-io-condition
-			recievedSignal := <-sigChan
-			log.Println("signal recieved:", fmt.Sprintf("%d(%s)", recievedSignal, recievedSignal.String()))
+			receivedSignal := <-sigChan
+			log.Println("signal received:", fmt.Sprintf("%d(%s)", receivedSignal, receivedSignal.String()))
 
 			for _, s := range trapSignals {
-				if recievedSignal == s {
+				if receivedSignal == s {
 					goto shutdown
 				}
 			}
@@ -153,7 +180,7 @@ func main() {
 		log.Println("waiting for startup:", startupWait)
 		time.Sleep(startupWait)
 	}
-	log.Println("start servering")
+	log.Println("server start")
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("HTTP server ListenAndServe: %v", err)
 	}
