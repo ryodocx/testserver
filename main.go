@@ -32,19 +32,25 @@ var accessLog bool = false
 func init() {
 	// override default config
 
+	getEnvDuration := func(envName string, defaultValue time.Duration) time.Duration {
+		e := os.Getenv(envName)
+		if e == "" {
+			return defaultValue
+		}
+		v, err := time.ParseDuration(e)
+		if err != nil {
+			log.Fatalln("invalid ", envName, ":", err)
+		}
+		return v
+	}
+
 	// LISTEN_ADDR
 	if v := os.Getenv("LISTEN_ADDR"); v != "" {
 		listenAddr = v
 	}
 
 	// STARTUP_WAIT
-	if e := os.Getenv("STARTUP_WAIT"); e != "" {
-		if v, err := time.ParseDuration(e); err != nil {
-			log.Fatalln("invalid 'STARTUP_WAIT':", err)
-		} else {
-			startupWait = v
-		}
-	}
+	startupWait = getEnvDuration("STARTUP_WAIT", startupWait)
 
 	// RESPONSE_BODY
 	if v := os.Getenv("RESPONSE_BODY"); v != "" {
@@ -52,13 +58,7 @@ func init() {
 	}
 
 	// RESPONSE_SLEEP
-	if e := os.Getenv("RESPONSE_SLEEP"); e != "" {
-		if v, err := time.ParseDuration(e); err != nil {
-			log.Fatalln("invalid 'RESPONSE_SLEEP':", err)
-		} else {
-			responseSleep = v
-		}
-	}
+	responseSleep = getEnvDuration("RESPONSE_SLEEP", responseSleep)
 
 	// TRAP_SIGNALS
 	if v := os.Getenv("TRAP_SIGNALS"); v != "" {
@@ -78,22 +78,10 @@ func init() {
 	}
 
 	// GRACE_PERIOD_BEFORE_SHUTDOWN
-	if e := os.Getenv("GRACE_PERIOD_BEFORE_SHUTDOWN"); e != "" {
-		if v, err := time.ParseDuration(e); err != nil {
-			log.Fatalln("invalid 'GRACE_PERIOD_BEFORE_SHUTDOWN':", err)
-		} else {
-			gracePeriodBeforeShutdown = v
-		}
-	}
+	gracePeriodBeforeShutdown = getEnvDuration("GRACE_PERIOD_BEFORE_SHUTDOWN", gracePeriodBeforeShutdown)
 
 	// GRACE_PERIOD_DURING_SHUTDOWN
-	if e := os.Getenv("GRACE_PERIOD_DURING_SHUTDOWN"); e != "" {
-		if v, err := time.ParseDuration(e); err != nil {
-			log.Fatalln("invalid 'GRACE_PERIOD_DURING_SHUTDOWN':", err)
-		} else {
-			gracePeriodDuringShutdown = v
-		}
-	}
+	gracePeriodDuringShutdown = getEnvDuration("GRACE_PERIOD_DURING_SHUTDOWN", gracePeriodDuringShutdown)
 
 	// ACCESS_LOG
 	if e := os.Getenv("ACCESS_LOG"); e == "true" {
