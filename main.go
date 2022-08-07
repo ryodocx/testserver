@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -96,6 +97,25 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	time.Sleep(responseSleep)
 	_, _ = w.Write(responseBody)
 }
+func echoHandler(w http.ResponseWriter, req *http.Request) {
+	if accessLog {
+		log.Printf("%s %s %s", req.RemoteAddr, req.Method, req.RequestURI)
+	}
+	respMap := map[string]interface{}{
+		"Header":     req.Header,
+		"Form":       req.Form,
+		"Proto":      req.Proto,
+		"Method":     req.Method,
+		"Host":       req.Host,
+		"RequestURI": req.RequestURI,
+	}
+	resp, err := json.Marshal(respMap)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_, _ = w.Write(resp)
+}
 
 func main() {
 	print := func(key string, val interface{}) { fmt.Printf("%-29s%v\n", key, val) }
@@ -124,6 +144,7 @@ func main() {
 	var srv http.Server
 	srv.Addr = listenAddr
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/echo", echoHandler)
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
