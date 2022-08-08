@@ -134,7 +134,7 @@ func main() {
 		for {
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan)
-			signal.Ignore(ignoreSignals...) // https://golang.hateblo.jp/entry/golang-signal-urgent-io-condition
+			signal.Ignore(ignoreSignals...)
 			receivedSignal := <-sigChan
 			log.Println("signal received:", fmt.Sprintf("%d(%s)", receivedSignal, receivedSignal.String()))
 

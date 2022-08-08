@@ -3,12 +3,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"syscall"
 )
 
 func init() {
-	ignoreSignals = []os.Signal{syscall.SIGURG}
-	fmt.Println("hello")
+	ignoreSignals = []os.Signal{syscall.SIGURG} // https://golang.hateblo.jp/entry/golang-signal-urgent-io-condition
 }
