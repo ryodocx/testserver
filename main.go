@@ -29,6 +29,8 @@ var gracePeriodBeforeShutdown time.Duration = 1 * time.Second
 var gracePeriodDuringShutdown time.Duration = 0
 var accessLog bool = false
 
+var ignoreSignals []os.Signal
+
 func init() {
 	// override default config
 
@@ -132,7 +134,7 @@ func main() {
 		for {
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan)
-			signal.Ignore(syscall.SIGURG) // https://golang.hateblo.jp/entry/golang-signal-urgent-io-condition
+			signal.Ignore(ignoreSignals...)
 			receivedSignal := <-sigChan
 			log.Println("signal received:", fmt.Sprintf("%d(%s)", receivedSignal, receivedSignal.String()))
 
