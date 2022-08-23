@@ -141,6 +141,7 @@ func main() {
 	print("TRAP_SIGNALS", trapSignals)
 	print("GRACE_PERIOD_BEFORE_SHUTDOWN", gracePeriodBeforeShutdown)
 	print("GRACE_PERIOD_DURING_SHUTDOWN", gracePeriodDuringShutdown)
+	print("ACCESS_LOG", accessLog)
 	fmt.Println("###################################################")
 
 	var srv http.Server
