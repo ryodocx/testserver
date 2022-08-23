@@ -99,6 +99,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	time.Sleep(responseSleep)
 	_, _ = w.Write(responseBody)
 }
+
 func echoHandler(w http.ResponseWriter, req *http.Request) {
 	if accessLog {
 		log.Printf("%s %s %s", req.RemoteAddr, req.Method, req.RequestURI)
@@ -156,7 +157,9 @@ func main() {
 		for {
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan)
-			signal.Ignore(ignoreSignals...)
+			if len(ignoreSignals) > 0 {
+				signal.Ignore(ignoreSignals...)
+			}
 			receivedSignal := <-sigChan
 			log.Println("signal received:", fmt.Sprintf("%d(%s)", receivedSignal, receivedSignal.String()))
 
