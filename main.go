@@ -111,6 +111,7 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 		"Method":     req.Method,
 		"Host":       req.Host,
 		"RequestURI": req.RequestURI,
+		"RemoteAddr": req.RemoteAddr,
 	}
 	resp, err := json.Marshal(respMap)
 	if err != nil {
