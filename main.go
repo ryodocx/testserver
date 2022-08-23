@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -99,6 +100,27 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	_, _ = w.Write(responseBody)
 }
 
+func echoHandler(w http.ResponseWriter, req *http.Request) {
+	if accessLog {
+		log.Printf("%s %s %s", req.RemoteAddr, req.Method, req.RequestURI)
+	}
+	respMap := map[string]interface{}{
+		"Header":     req.Header,
+		"Form":       req.Form,
+		"Proto":      req.Proto,
+		"Method":     req.Method,
+		"Host":       req.Host,
+		"RequestURI": req.RequestURI,
+		"RemoteAddr": req.RemoteAddr,
+	}
+	resp, err := json.Marshal(respMap)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_, _ = w.Write(resp)
+}
+
 func main() {
 	print := func(key string, val interface{}) { fmt.Printf("%-29s%v\n", key, val) }
 	i, _ := debug.ReadBuildInfo()
@@ -121,11 +143,13 @@ func main() {
 	print("TRAP_SIGNALS", trapSignals)
 	print("GRACE_PERIOD_BEFORE_SHUTDOWN", gracePeriodBeforeShutdown)
 	print("GRACE_PERIOD_DURING_SHUTDOWN", gracePeriodDuringShutdown)
+	print("ACCESS_LOG", accessLog)
 	fmt.Println("###################################################")
 
 	var srv http.Server
 	srv.Addr = listenAddr
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/echo", echoHandler)
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
@@ -134,7 +158,9 @@ func main() {
 		for {
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan)
-			signal.Ignore(ignoreSignals...)
+			if len(ignoreSignals) > 0 {
+				signal.Ignore(ignoreSignals...)
+			}
 			receivedSignal := <-sigChan
 			log.Println("signal received:", fmt.Sprintf("%d(%s)", receivedSignal, receivedSignal.String()))
 

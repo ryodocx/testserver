@@ -4,7 +4,8 @@
 [![CodeQL](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ryodocx/testserver)](https://goreportcard.com/report/github.com/ryodocx/testserver)
 
-Simple HTTP Server for rolling-update testing
+Simple HTTP Server for testing
+
 
 ## Usage
 
@@ -15,6 +16,13 @@ go install github.com/ryodocx/testserver@latest
 # docker
 docker run --rm -it -p 8080:8080 ghcr.io/ryodocx/testserver
 ```
+
+## Endpoints
+
+| path    | description                                              |
+|---------|----------------------------------------------------------|
+| `/`     | return 200 OK + any text configured with `RESPONSE_BODY` |
+| `/echo` | return HTTP request information                          |
 
 ## Environment variables
 
