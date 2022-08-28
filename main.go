@@ -113,7 +113,7 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 		"RequestURI": req.RequestURI,
 		"RemoteAddr": req.RemoteAddr,
 	}
-	resp, err := json.Marshal(respMap)
+	resp, err := json.MarshalIndent(respMap, "", "    ")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
