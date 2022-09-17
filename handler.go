@@ -30,9 +30,8 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 		authzHeader := req.Header.Get("Authorization")
 
 		// JWT
-		jwtAll := strings.Split(authzHeader[7:], ".")
 		jwtInfo := map[string]any{}
-		authzInfo["jwt"] = jwtInfo
+		jwtAll := strings.Split(authzHeader[7:], ".")
 		if strings.HasPrefix(strings.ToLower(authzHeader), "bearer ") && len(jwtAll) == 3 {
 			parseJWT := func(jwtBodyB64Encoded, mapKey string) error {
 				jwtBody := map[string]any{}
@@ -55,6 +54,8 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 				log.Println(err)
 				goto breakAuthz
 			}
+
+			authzInfo["jwt"] = jwtInfo
 		}
 	}
 breakAuthz:
