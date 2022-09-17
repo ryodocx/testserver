@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -21,15 +23,53 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 	if accessLog {
 		log.Printf("%s %s %s", req.RemoteAddr, req.Method, req.RequestURI)
 	}
-	respMap := map[string]interface{}{
-		"Header":     req.Header,
-		"Form":       req.Form,
-		"Proto":      req.Proto,
-		"Method":     req.Method,
-		"Host":       req.Host,
-		"RequestURI": req.RequestURI,
-		"RemoteAddr": req.RemoteAddr,
+
+	// Parse Authorization header
+	var authzInfo = map[string]any{}
+	{
+		authzHeader := req.Header.Get("Authorization")
+
+		// JWT
+		jwtAll := strings.Split(authzHeader[7:], ".")
+		jwtInfo := map[string]any{}
+		authzInfo["jwt"] = jwtInfo
+		if strings.HasPrefix(strings.ToLower(authzHeader), "bearer ") && len(jwtAll) == 3 {
+			parseJWT := func(jwtBodyB64Encoded, mapKey string) error {
+				jwtBody := map[string]any{}
+				jwtBodyDecoded, err := base64.RawURLEncoding.DecodeString(jwtBodyB64Encoded)
+				if err != nil {
+					return err
+				}
+				if err := json.Unmarshal(jwtBodyDecoded, &jwtBody); err != nil {
+					return err
+				}
+				jwtInfo[mapKey] = jwtBody
+				return nil
+			}
+
+			if err := parseJWT(jwtAll[0], "header"); err != nil {
+				log.Println(err)
+				goto breakAuthz
+			}
+			if err := parseJWT(jwtAll[1], "payload"); err != nil {
+				log.Println(err)
+				goto breakAuthz
+			}
+		}
 	}
+breakAuthz:
+
+	respMap := map[string]interface{}{
+		"Header":        req.Header,
+		"Form":          req.Form,
+		"Proto":         req.Proto,
+		"Method":        req.Method,
+		"Host":          req.Host,
+		"RequestURI":    req.RequestURI,
+		"RemoteAddr":    req.RemoteAddr,
+		"Authorization": authzInfo,
+	}
+
 	resp, err := json.MarshalIndent(respMap, "", "    ")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
