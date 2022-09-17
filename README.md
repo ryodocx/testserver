@@ -2,7 +2,8 @@
 
 [![lint](https://github.com/ryodocx/testserver/actions/workflows/golangci-lint.yaml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/golangci-lint.yaml)
 [![CodeQL](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/codeql-analysis.yml)
-[![Trivy](https://github.com/ryodocx/testserver/actions/workflows/trivy.yaml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/trivy.yml)
+[![Trivy](https://github.com/ryodocx/testserver/actions/workflows/trivy.yaml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/trivy.yaml)
+[![Docker build](https://github.com/ryodocx/testserver/actions/workflows/docker.yaml/badge.svg)](https://github.com/ryodocx/testserver/actions/workflows/docker.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ryodocx/testserver)](https://goreportcard.com/report/github.com/ryodocx/testserver)
 
 Simple HTTP Server for testing
