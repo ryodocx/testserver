@@ -28,6 +28,10 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 	var authzInfo = map[string]any{}
 	{
 		authzHeader := req.Header.Get("Authorization")
+		if len(authzHeader) <= 7 {
+			// empty or not have bearer token
+			goto breakAuthz
+		}
 
 		// JWT
 		jwtInfo := map[string]any{}
