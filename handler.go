@@ -35,8 +35,8 @@ func echoHandler(w http.ResponseWriter, req *http.Request) {
 
 		// JWT
 		jwtInfo := map[string]any{}
-		jwtAll := strings.Split(authzHeader[7:], ".")
-		if strings.HasPrefix(strings.ToLower(authzHeader), "bearer ") && len(jwtAll) == 3 {
+		jwtAll := strings.Split(strings.TrimPrefix(authzHeader, "Bearer "), ".")
+		if strings.HasPrefix(authzHeader, "Bearer ") && len(jwtAll) == 3 {
 			parseJWT := func(jwtBodyB64Encoded, mapKey string) error {
 				jwtBody := map[string]any{}
 				jwtBodyDecoded, err := base64.RawURLEncoding.DecodeString(jwtBodyB64Encoded)
