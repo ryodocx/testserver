@@ -118,8 +118,8 @@ func main() {
 
 	var srv http.Server
 	srv.Addr = listenAddr
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/echo", echoHandler)
+	// http.HandleFunc("/", handler)
+	http.HandleFunc("/", echoHandler)
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
